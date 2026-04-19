@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 300px;
+      background: #0f0f0f;
+      color: #e8e8e8;
+      font-family: 'DM Sans', sans-serif;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 14px;
+    }
+
+    header .logo {
+      width: 32px; height: 32px;
+      background: #ff4500;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    header span {
+      font-size: 11px;
+      color: #666;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-scan {
+      background: #1a1a1a;
+      color: #ff4500;
+      border: 1px solid #ff4500;
+    }
+    .btn-scan:not(:disabled):hover { background: #ff4500; color: #fff; }
+
+    .btn-download {
+      background: #ff4500;
+      color: #fff;
+    }
+    .btn-download:not(:disabled):hover { background: #e03d00; }
+
+    .btn-stop {
+      background: #1a1a1a;
+      color: #ff6b6b;
+      border: 1px solid #ff6b6b;
+      display: none;
+    }
+    .btn-stop.visible { display: flex; }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-box {
+      flex: 1;
+      background: #1a1a1a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .stat-box .num {
+      font-size: 20px;
+      font-weight: 600;
+      color: #ff4500;
+      font-family: 'DM Mono', monospace;
+    }
+    .stat-box .lbl {
+      font-size: 10px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: #1a1a1a;
+      border-radius: 4px;
+      height: 4px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-bar {
+      height: 100%;
+      background: #ff4500;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Status */
+    #status {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 10px;
+      min-height: 16px;
+      font-family: 'DM Mono', monospace;
+    }
+    #status.ok { color: #4caf50; }
+    #status.err { color: #ff6b6b; }
+
+    /* Log */
+    #log {
+      max-height: 160px;
+      overflow-y: auto;
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      line-height: 1.6;
+    }
+
+    #log .entry { display: flex; gap: 6px; margin-bottom: 2px; }
+    #log .entry .icon { flex-shrink: 0; }
+    #log .entry .text { color: #aaa; word-break: break-all; }
+    #log .entry.success .text { color: #4caf50; }
+    #log .entry.error .text { color: #ff6b6b; }
+    #log .entry.info .text { color: #64b5f6; }
+    #log .entry.warn .text { color: #ffb74d; }
+
+    /* Scrollbar */
+    #log::-webkit-scrollbar { width: 4px; }
+    #log::-webkit-scrollbar-track { background: #1a1a1a; }
+    #log::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .folder-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .folder-row label { font-size: 12px; color: #888; white-space: nowrap; }
+    .folder-row input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 5px;
+      color: #e8e8e8;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+    .folder-row input:focus { outline: none; border-color: #ff4500; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🦊</div>
+  <div>
+    <h1>Reddit Downloader</h1>
+    <span>Bookmark Media Downloader</span>
+  </div>
+</header>
+
+<div class="folder-row">
+  <label>folder Name:</label>
+  <input type="text" id="folderName" value="RedditDownloads" placeholder="RedditDownloads">
+</div>
+
+<div class="stats">
+  <div class="stat-box"><div class="num" id="statTotal">0</div><div class="lbl">Posts</div></div>
+  <div class="stat-box"><div class="num" id="statDone">0</div><div class="lbl">Downloaded</div></div>
+  <div class="stat-box"><div class="num" id="statFail">0</div><div class="lbl">Unsuccessful</div></div>
+  <div class="stat-box"><div class="num" id="statFiles">0</div><div class="lbl">File</div></div>
+</div>
+
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div id="status">Click for scanning bookmarks.</div>
+
+<button class="btn btn-scan" id="scanBtn">🔍 Scan Bookmarks</button>
+<button class="btn btn-download" id="downloadBtn" disabled>⬇️ Download All</button>
+<button class="btn btn-stop" id="stopBtn">⏹ Stop</button>
+
+<div id="log"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
